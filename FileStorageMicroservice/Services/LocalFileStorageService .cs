@@ -1,15 +1,21 @@
-﻿using FileStorageMicroservice.Models;
+﻿using FileStorageMicroservice.Configurations;
+using FileStorageMicroservice.Models;
 using FileStorageMicroservice.Repositories;
 using FileStorageMicroservice.Services;
+using Microsoft.Extensions.Options;
 
 public class LocalFileStorageService : IStorageService
 {
     private readonly string _storageDirectory;
     private readonly IFileMetadataRepository _metadataRepository;
 
-    public LocalFileStorageService(IConfiguration configuration, IFileMetadataRepository metadataRepository)
+    public LocalFileStorageService(IOptions<LocalSettings> options, IFileMetadataRepository metadataRepository)
     {
-        _storageDirectory = configuration.GetValue<string>("LocalStorage:Directory")
+        if (options == null || options.Value == null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+        _storageDirectory = options.Value.StorageDirectory
                             ?? throw new ArgumentNullException(nameof(_storageDirectory));
         _metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
 
@@ -18,6 +24,7 @@ public class LocalFileStorageService : IStorageService
             Directory.CreateDirectory(_storageDirectory);
         }
     }
+
 
     public async Task<string> UploadFileAsync(IFormFile file)
     {

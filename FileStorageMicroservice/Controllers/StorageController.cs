@@ -16,6 +16,11 @@ namespace FileStorageMicroservice.Controllers
             _storageService = storageService;
         }
 
+        /// <summary>
+        /// Uploads a file to the storage.
+        /// </summary>
+        /// <param name="file">The file to upload.</param>
+        /// <returns>The ID of the uploaded file.</returns>
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
@@ -23,6 +28,11 @@ namespace FileStorageMicroservice.Controllers
             return Ok(new { FileId = fileId });
         }
 
+        /// <summary>
+        /// Downloads a file from the storage.
+        /// </summary>
+        /// <param name="fileId">The ID of the file to download.</param>
+        /// <returns>The file stream and content type.</returns>
         [HttpGet("download/{fileId}")]
         public async Task<IActionResult> DownloadFile(string fileId)
         {
@@ -30,6 +40,11 @@ namespace FileStorageMicroservice.Controllers
             return File(fileStream, contentType);
         }
 
+        /// <summary>
+        /// Deletes a file by its ID.
+        /// </summary>
+        /// <param name="fileId">The ID of the file to delete.</param>
+        /// <returns>No content if successful, otherwise Not Found.</returns>
         [HttpDelete("delete/{fileId}")]
         public async Task<IActionResult> DeleteFile(string fileId)
         {
