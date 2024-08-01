@@ -1,4 +1,5 @@
 ﻿using FileStorageMicroservice.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace FileStorageMicroservice.Controllers
         /// </summary>
         /// <param name="file">The file to upload.</param>
         /// <returns>The ID of the uploaded file.</returns>
+        [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
@@ -33,6 +35,7 @@ namespace FileStorageMicroservice.Controllers
         /// </summary>
         /// <param name="fileId">The ID of the file to download.</param>
         /// <returns>The file stream and content type.</returns>
+        [Authorize]
         [HttpGet("download/{fileId}")]
         public async Task<IActionResult> DownloadFile(string fileId)
         {
@@ -45,6 +48,7 @@ namespace FileStorageMicroservice.Controllers
         /// </summary>
         /// <param name="fileId">The ID of the file to delete.</param>
         /// <returns>No content if successful, otherwise Not Found.</returns>
+        [Authorize]
         [HttpDelete("delete/{fileId}")]
         public async Task<IActionResult> DeleteFile(string fileId)
         {
