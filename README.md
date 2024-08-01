@@ -31,8 +31,8 @@ A microservice for managing file uploads, downloads, and deletions, using ASP.NE
 
 ### Diagram
 
-![High-Level Design](![FileStorageMicroservice drawio](https://github.com/user-attachments/assets/dc633d81-131c-44fe-8e07-f6dc29483bdf)
-)
+![High-Level Design](![FileStorageMicroservice drawio]https://github.com/user-attachments/assets/dc633d81-131c-44fe-8e07-f6dc29483bdf)
+
 
 ### Components
 1. **API Gateway**: Manages and routes incoming requests.
