@@ -54,12 +54,52 @@ Other microservices communicate with the storage microservice via RESTful APIs. 
 - **GET /api/storage/download/{fileId}**: Download a file by ID.
 - **DELETE /api/storage/delete/{fileId}**: Delete a file by ID.
 
-### Asynchronous Communication
-For non-blocking operations, a message queue (e.g., RabbitMQ) can be used to process file uploads asynchronously.
-
 ### Security and Access Control
-OAuth2 or JWT tokens are used to secure communication, ensuring that only authenticated and authorized requests are processed.
+JWT Authentication: The service uses JSON Web Tokens (JWT) for secure access. Other services must include a valid JWT token in the Authorization header for each request.
+Token Format: Bearer {token}
+Token Issuance: Tokens are issued by an Identity Provider (IdP) within the organization, and all services must validate the tokens' authenticity.
+### Asynchronous Communication
+1. Message Queue
 
+    Queue System: RabbitMQ or similar message broker.
+    Purpose: For non-blocking file operations, such as processing large uploads or notifying other services of changes.
+    Example Usage:
+        Upload Notification: When a file is uploaded, a message is sent to a queue to notify other services.
+        Deletion Notification: Similarly, a message is sent when a file is deleted.
+
+2. Message Format
+
+    Example Message:
+
+    json
+
+    {
+      "event": "FileUploaded",
+      "fileId": "12345",
+      "fileName": "example.txt",
+      "uploaderService": "ServiceName",
+      "timestamp": "2024-08-01T14:30:00Z"
+    }
+
+3. Implementation Considerations
+
+    Durability: Messages should be durable and persist even if the message broker temporarily goes down.
+    Security: Secure the message channel using TLS and authenticate services using credentials or certificates.
+
+Error Handling
+
+1. HTTP Response Codes
+
+    200 OK: Successful operation.
+    400 Bad Request: Invalid input or request format.
+    401 Unauthorized: Missing or invalid authentication token.
+    404 Not Found: File not found.
+    500 Internal Server Error: An unexpected error occurred.
+
+2. Logging and Monitoring
+
+    All API requests and responses are logged.
+    Errors are monitored and alerts are configured for critical issues.
 ## Prerequisites
 
 - [.NET 7.0 SDK](https://dotnet.microsoft.com/download/dotnet/7.0)
