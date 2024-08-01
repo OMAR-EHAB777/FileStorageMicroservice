@@ -4,32 +4,42 @@ using FileStorageMicroservice.Configurations;
 using FileStorageMicroservice.Models;
 using FileStorageMicroservice.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
 public class LocalFileStorageServiceTests
 {
-    private readonly LocalFileStorageService _localFileStorageService;
+
     private readonly string _testDirectory;
     private readonly Mock<IFileMetadataRepository> _mockMetadataRepository;
+    private readonly LocalFileStorageService _localFileStorageService;
 
     public LocalFileStorageServiceTests()
     {
+        // Setup a temporary directory for testing
         _testDirectory = Path.Combine(Path.GetTempPath(), "LocalFileStorageTests");
-        var localSettings = new LocalSettings { StorageDirectory = _testDirectory };
+
+        // Create a mock configuration
+        var inMemorySettings = new Dictionary<string, string>
+        {
+            {"LocalStorage:Directory", _testDirectory}
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+
+        // Mock the IFileMetadataRepository
         _mockMetadataRepository = new Mock<IFileMetadataRepository>();
 
-        _localFileStorageService = new LocalFileStorageService(
-            Options.Create(localSettings),
-            _mockMetadataRepository.Object);
+        // Initialize the LocalFileStorageService with the configuration and mock
+        _localFileStorageService = new LocalFileStorageService(configuration, _mockMetadataRepository.Object);
 
-        if (!Directory.Exists(_testDirectory))
-        {
-            Directory.CreateDirectory(_testDirectory);
-        }
+        // Ensure the test directory exists
+        Directory.CreateDirectory(_testDirectory);
     }
-
 
     [Fact]
     public async Task UploadFileAsync_ShouldSaveFile()

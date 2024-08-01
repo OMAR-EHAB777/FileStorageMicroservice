@@ -1,7 +1,9 @@
+using FileStorageMicroservice.Configurations;
 using FileStorageMicroservice.Data;
 using FileStorageMicroservice.Repositories;
 using FileStorageMicroservice.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,10 +36,17 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<StorageDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register services
+
+// Register configuration and services
 builder.Services.AddScoped<IFileMetadataRepository, FileMetadataRepository>();
 builder.Services.AddScoped<IStorageService, S3StorageService>();
-builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IStorageService>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var metadataRepository = provider.GetRequiredService<IFileMetadataRepository>();
+    return new LocalFileStorageService(configuration, metadataRepository);
+});
+
 
 // Build the application
 var app = builder.Build();
@@ -50,7 +59,6 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "File Storage Microservice API v1");
     });
-
 }
 
 app.UseHttpsRedirection();

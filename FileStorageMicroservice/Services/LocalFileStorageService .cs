@@ -9,13 +9,9 @@ public class LocalFileStorageService : IStorageService
     private readonly string _storageDirectory;
     private readonly IFileMetadataRepository _metadataRepository;
 
-    public LocalFileStorageService(IOptions<LocalSettings> options, IFileMetadataRepository metadataRepository)
+    public LocalFileStorageService(IConfiguration configuration, IFileMetadataRepository metadataRepository)
     {
-        if (options == null || options.Value == null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-        _storageDirectory = options.Value.StorageDirectory
+        _storageDirectory = configuration.GetValue<string>("LocalStorage:Directory")
                             ?? throw new ArgumentNullException(nameof(_storageDirectory));
         _metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
 
@@ -24,7 +20,6 @@ public class LocalFileStorageService : IStorageService
             Directory.CreateDirectory(_storageDirectory);
         }
     }
-
 
     public async Task<string> UploadFileAsync(IFormFile file)
     {
