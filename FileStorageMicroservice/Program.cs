@@ -9,16 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
-// Register the DbContext
-builder.Services.AddDbContext<StorageDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Register services
-builder.Services.AddScoped<IFileMetadataRepository, FileMetadataRepository>();
-builder.Services.AddScoped<IStorageService, S3StorageService>();
-builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -40,6 +30,15 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
+// Register the DbContext
+builder.Services.AddDbContext<StorageDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register services
+builder.Services.AddScoped<IFileMetadataRepository, FileMetadataRepository>();
+builder.Services.AddScoped<IStorageService, S3StorageService>();
+builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
+
 // Build the application
 var app = builder.Build();
 
@@ -50,8 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "File Storage Microservice API v1");
-        c.RoutePrefix = string.Empty; // To serve the Swagger UI at the app's root
     });
+
 }
 
 app.UseHttpsRedirection();
